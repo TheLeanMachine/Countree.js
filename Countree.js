@@ -218,26 +218,32 @@
      */
     function CountResult(countreeRef, millisecondsStartingPoint) {
 
-        var that = this;
+        /************************************
+         Private variables
+         ************************************/
 
-        this.overallMillisecondsLeft = 0;
-        this.millisecondsStartingPoint = millisecondsStartingPoint;
-        this.countNotifier = new CountNotifier(countreeRef, this.millisecondsStartingPoint);
+        var that = this,
+            overallMillisecondsLeft_ = 0,
+            countNotifier_ = new CountNotifier(countreeRef, millisecondsStartingPoint);
 
         // the timeObject contains the milliseconds left (or to go) in a formatted object. So one could do something like
         // this: countResult.getAsTimeObject().minutes
-        this.timeObject = new TimeObject();
+        var timeObject_ = new TimeObject();
 
         this.update = function (milliseconds) {
-            that.overallMillisecondsLeft = milliseconds;
+            overallMillisecondsLeft_ = milliseconds;
             //every time the milliseconds are updated, we need to check if there is a notifier that listens to that
-            that.countNotifier.notifyIfNecessary(milliseconds);
-            return that.overallMillisecondsLeft;
+            countNotifier_.notifyIfNecessary(milliseconds);
+            return overallMillisecondsLeft_;
         };
 
         this.getAsTimeObject = function () {
             // update the timeObject and return its new value
-            return that.timeObject.update(that.overallMillisecondsLeft);
+            return timeObject_.update(overallMillisecondsLeft_);
+        };
+
+        this.totalMillisecondsLeft = function() {
+          return overallMillisecondsLeft_;
         };
     }
 
