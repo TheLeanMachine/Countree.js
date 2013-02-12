@@ -42,7 +42,7 @@
      */
     function Countree(configOptions) {
 
-        var that = this;
+        var thisCountree = this;
 
         /**
          * The interval reference is used to identify the active interval, so that it could be cleared (e.g. for suspending
@@ -108,21 +108,21 @@
                 }
 
                 // update the result and forward it to the users callback as a countResult object
-                that.countResult.update(millisecondsForContinuePoint);
-                callback(that.countResult);
+                thisCountree.countResult.update(millisecondsForContinuePoint);
+                callback(thisCountree.countResult);
 
                 // need to check if the counter is done with counting
-                checkIfCounterFinished(millisecondsForContinuePoint, getTotalMillisecondsFromObject(that.options), callback);
+                checkIfCounterFinished(millisecondsForContinuePoint, getTotalMillisecondsFromObject(thisCountree.options), callback);
             };
 
-            return setInterval(calculateMilliseconds, that.options.updateIntervalInMilliseconds);
+            return setInterval(calculateMilliseconds, thisCountree.options.updateIntervalInMilliseconds);
         }
 
         /**
          * @private
          */
         function countDirectionIs(countDirection) {
-            return that.options.direction === countDirection;
+            return thisCountree.options.direction === countDirection;
         }
 
         /**
@@ -132,29 +132,29 @@
          */
         function updateCounterBeforeIntervalStart(totalMillisecondsToGo, callback) {
             if (countDirectionIs(COUNT_DIRECTION.DOWN)) {
-                that.countResult.update(totalMillisecondsToGo);
+                thisCountree.countResult.update(totalMillisecondsToGo);
             }
             //when counting up
             else if (countDirectionIs(COUNT_DIRECTION.UP)) {
-                that.countResult.update(0);
+                thisCountree.countResult.update(0);
             }
 
-            callback(that.countResult);
+            callback(thisCountree.countResult);
         }
 
 
         function checkIfCounterFinished(millisecondsProceeded, totalMillisecondsToGo, callback) {
             if (countDirectionIs(COUNT_DIRECTION.UP)) {
                 if (millisecondsProceeded >= totalMillisecondsToGo) {
-                    that.countResult.countNotifier.fireNotificationEvent(that.countResult.countNotifier.EVENT.ON_FINISH, millisecondsProceeded);
+                    thisCountree.countResult.countNotifier.fireNotificationEvent(thisCountree.countResult.countNotifier.EVENT.ON_FINISH, millisecondsProceeded);
                     clearIntervalFromCountree();
                 }
             }
             else if (countDirectionIs(COUNT_DIRECTION.DOWN)) {
                 if (millisecondsProceeded <= 0) {
-                    that.countResult.update(0);
-//                callback(that.countResult);
-                    that.countResult.countNotifier.fireNotificationEvent(that.countResult.countNotifier.EVENT.ON_FINISH, millisecondsProceeded);
+                    thisCountree.countResult.update(0);
+//                callback(thisCountree.countResult);
+                    thisCountree.countResult.countNotifier.fireNotificationEvent(thisCountree.countResult.countNotifier.EVENT.ON_FINISH, millisecondsProceeded);
                     clearIntervalFromCountree();
                 }
             }
@@ -166,7 +166,7 @@
 
 
         function start(callback) {
-            var millisecondsAtStart = countDirectionIs(COUNT_DIRECTION.DOWN) ? getTotalMillisecondsFromObject(that.options) : 0;
+            var millisecondsAtStart = countDirectionIs(COUNT_DIRECTION.DOWN) ? getTotalMillisecondsFromObject(thisCountree.options) : 0;
 
             //remember the users callback to be able to continue the counter without providing the callback again later (on resume())
             intervalCallbackRef = callback;
@@ -178,33 +178,33 @@
 
 
             // start the counter and remember the intervalId as reference for later (e.g. for restarting or suspending)
-            intervalRef = onCountingInterval(intervalCallbackRef, new Date(), getTotalMillisecondsFromObject(that.options), false);
-            that.countResult.countNotifier.resetNotifier();
+            intervalRef = onCountingInterval(intervalCallbackRef, new Date(), getTotalMillisecondsFromObject(thisCountree.options), false);
+            thisCountree.countResult.countNotifier.resetNotifier();
 
-            that.countResult.countNotifier.fireNotificationEvent(that.countResult.countNotifier.EVENT.ON_START, millisecondsAtStart);
-            that.isCounting = true;
+            thisCountree.countResult.countNotifier.fireNotificationEvent(thisCountree.countResult.countNotifier.EVENT.ON_START, millisecondsAtStart);
+            thisCountree.isCounting = true;
         }
 
         function suspend() {
             // clear the interval as it stops the further counting
             clearIntervalFromCountree();
-            if (that.isCounting) {
-                that.countResult.countNotifier.fireNotificationEvent(that.countResult.countNotifier.EVENT.ON_SUSPEND, millisecondsForContinuePoint);
+            if (thisCountree.isCounting) {
+                thisCountree.countResult.countNotifier.fireNotificationEvent(thisCountree.countResult.countNotifier.EVENT.ON_SUSPEND, millisecondsForContinuePoint);
             }
-            that.isCounting = false;
+            thisCountree.isCounting = false;
         }
 
         function resume() {
             // only continue counting if the counter isn't already active and the users callback is available
-            if (!that.isCounting && intervalCallbackRef) {
+            if (!thisCountree.isCounting && intervalCallbackRef) {
                 intervalRef = onCountingInterval(intervalCallbackRef, new Date(), millisecondsForContinuePoint, true);
-                that.countResult.countNotifier.fireNotificationEvent(that.countResult.countNotifier.EVENT.ON_RESUME, millisecondsForContinuePoint);
-                that.isCounting = true;
+                thisCountree.countResult.countNotifier.fireNotificationEvent(thisCountree.countResult.countNotifier.EVENT.ON_RESUME, millisecondsForContinuePoint);
+                thisCountree.isCounting = true;
             }
         }
 
         function notifyAt(notifyConfig, callback) {
-            that.countResult.countNotifier.addNotifier(notifyConfig, callback, that.options.direction);
+            thisCountree.countResult.countNotifier.addNotifier(notifyConfig, callback, thisCountree.options.direction);
         }
 
 
